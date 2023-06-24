@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../data-source.js";
 import { User } from "../entity/user.entity.js";
 
-const getUsers = async (req: Request, res: Response) => {
+const getUsers = async (_: Request, res: Response) => {
   const users = await AppDataSource.getRepository(User).find();
   res.send(users);
 };
@@ -21,4 +21,19 @@ const createUser = async (req: Request, res: Response) => {
   return res.send(results.raw[0]);
 };
 
-export default { getUsers, createUser };
+const deleteUser = async (req: Request, res: Response) => {
+  // TODO: add auth
+
+  const { id } = req.params;
+
+  const results = await AppDataSource.createQueryBuilder()
+    .delete()
+    .from(User)
+    .where("id = :id", { id })
+    .returning("*")
+    .execute();
+
+  return res.send(results.raw[0]);
+};
+
+export default { getUsers, createUser, deleteUser };
