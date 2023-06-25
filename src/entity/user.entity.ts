@@ -1,10 +1,22 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  Relation,
+} from "typeorm";
+import Bill from "./bill.entity.js";
 
 @Entity()
-export class User {
+class User {
   @PrimaryGeneratedColumn("uuid")
-  id: number;
+  id: string;
 
   @Column()
   username: string;
+
+  @OneToMany(() => Bill, (bill) => bill.user)
+  bills: Relation<Bill[]>;
 }
+
+export default User;

@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source.js";
-import { User } from "../entity/user.entity.js";
+import User from "../entity/user.entity.js";
 
 const getUsers = async (_: Request, res: Response) => {
+  // TODO: remove - only for testing
+
   const users = await AppDataSource.getRepository(User).find();
   res.send(users);
 };
@@ -17,6 +19,8 @@ const createUser = async (req: Request, res: Response) => {
     .values(newUser)
     .returning("*")
     .execute();
+
+  // TODO: create jwt with user id and save as cookie on client
 
   return res.send(results.raw[0]);
 };
