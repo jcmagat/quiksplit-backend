@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source.js";
 import User from "../entity/user.entity.js";
+import authService from "../service/auth.service.js";
 
 const getUsers = async (_: Request, res: Response) => {
   // TODO: remove - only for testing
@@ -11,18 +12,26 @@ const getUsers = async (_: Request, res: Response) => {
 
 const createUser = async (req: Request, res: Response) => {
   const { username } = req.body;
-  const newUser = { username };
 
-  const results = await AppDataSource.createQueryBuilder()
-    .insert()
-    .into(User)
-    .values(newUser)
-    .returning("*")
-    .execute();
+  const user = new User();
+  user.username = username;
 
-  // TODO: create jwt with user id and save as cookie on client
+  AppDataSource.manager
+    .save(user)
+    .then((newUser) => {
+      const { accessToken } = authService.createToken({ id: newUser.id });
 
-  return res.send(results.raw[0]);
+      // Set cookie
+      res.cookie("access_token", accessToken, {
+        httpOnly: true,
+        sameSite: "strict",
+      });
+
+      return res.send(newUser);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 };
 
 const deleteUser = async (req: Request, res: Response) => {
