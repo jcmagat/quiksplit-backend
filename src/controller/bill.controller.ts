@@ -2,15 +2,9 @@ import { Request, Response } from "express";
 import Bill from "../entity/bill.entity.js";
 import User from "../entity/user.entity.js";
 import { AppDataSource } from "../data-source.js";
-import authService from "../service/auth.service.js";
 
 const getBills = async (req: Request, res: Response) => {
-  const { isValid, user } = authService.verifyToken(req.cookies.access_token);
-
-  if (!isValid)
-    return res.status(401).send({
-      error: "Not authenticated",
-    });
+  const user = req.user;
 
   AppDataSource.getRepository(Bill)
     .find({
@@ -54,12 +48,7 @@ const getBill = async (req: Request, res: Response) => {
 };
 
 const createBill = async (req: Request, res: Response) => {
-  const { isValid, user } = authService.verifyToken(req.cookies.access_token);
-
-  if (!isValid)
-    return res.status(401).send({
-      error: "Not authenticated",
-    });
+  const user = req.user;
 
   const { name } = req.body;
 

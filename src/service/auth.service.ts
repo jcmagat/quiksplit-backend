@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-type JwtPayload = {
+export type JwtPayload = {
   id: string;
 };
 
