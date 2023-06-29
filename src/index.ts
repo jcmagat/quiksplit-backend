@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import { AppDataSource } from "./data-source.js";
 import userRouter from "./router/user.router.js";
 import billRouter from "./router/bill.router.js";
@@ -19,6 +20,7 @@ AppDataSource.initialize()
   );
 
 app.use(express.json());
+app.use(cookieParser());
 
 // ========== Routes ==========
 app.use("/users", userRouter);

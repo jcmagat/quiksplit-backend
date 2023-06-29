@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 
-type Payload = {
+type JwtPayload = {
   id: string;
 };
 
-const createToken = (payload: Payload) => {
+const createToken = (payload: JwtPayload) => {
   const accessToken = jwt.sign(
     payload,
     process.env.ACCESS_TOKEN_SECRET as string
@@ -13,4 +13,17 @@ const createToken = (payload: Payload) => {
   return { accessToken };
 };
 
-export default { createToken };
+const verifyToken = (token: string) => {
+  if (!token) return { isValid: false, user: null };
+
+  const payload = jwt.verify(
+    token,
+    process.env.ACCESS_TOKEN_SECRET as string
+  ) as JwtPayload;
+
+  const user = { id: payload.id };
+
+  return { isValid: true, user };
+};
+
+export default { createToken, verifyToken };

@@ -31,6 +31,12 @@ const createUser = async (req: Request, res: Response) => {
     })
     .catch((error) => {
       console.error(error);
+
+      // TODO: check the type of error and set status and error accordingly
+
+      return res.status(400).send({
+        error: "Something went wrong",
+      });
     });
 };
 

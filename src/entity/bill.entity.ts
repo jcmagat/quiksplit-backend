@@ -4,6 +4,8 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   Relation,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import User from "./user.entity.js";
 
@@ -15,7 +17,13 @@ class Bill {
   @Column()
   name: string;
 
-  @ManyToOne(() => User, (user) => user.bills)
+  @CreateDateColumn({ type: "timestamptz" })
+  createdOn: Date;
+
+  @UpdateDateColumn({ type: "timestamptz" })
+  lastUpdatedOn: Date;
+
+  @ManyToOne(() => User, (user) => user.bills, { nullable: false })
   user: Relation<User>;
 }
 
