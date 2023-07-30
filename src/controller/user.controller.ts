@@ -1,33 +1,37 @@
 import { Request, Response } from "express";
-import { AppDataSource } from "../data-source.js";
-import User from "../entity/user.entity.js";
-import authService from "../service/auth.service.js";
+import pool from "../database/index.js";
 
 const getUsers = async (_: Request, res: Response) => {
   // TODO: remove - only for testing
 
-  const users = await AppDataSource.getRepository(User).find();
-  res.send(users);
+  pool
+    .query("SELECT * FROM user_")
+    .then((result) => {
+      return res.send(result.rows);
+    })
+    .catch((error) => {
+      console.error(error);
+
+      // TODO: check the type of error and set status and error accordingly
+
+      return res.status(400).send({
+        error: "Something went wrong",
+      });
+    });
 };
 
 const createUser = async (req: Request, res: Response) => {
   const { username } = req.body;
 
-  const user = new User();
-  user.username = username;
+  const query = {
+    text: "INSERT INTO user_(username_) VALUES($1) RETURNING *",
+    values: [username],
+  };
 
-  AppDataSource.manager
-    .save(user)
-    .then((newUser) => {
-      const { accessToken } = authService.createToken({ id: newUser.id });
-
-      // Set cookie
-      res.cookie("access_token", accessToken, {
-        httpOnly: true,
-        sameSite: "strict",
-      });
-
-      return res.send(newUser);
+  pool
+    .query(query)
+    .then((result) => {
+      return res.send(result.rows[0]);
     })
     .catch((error) => {
       console.error(error);
@@ -45,14 +49,25 @@ const deleteUser = async (req: Request, res: Response) => {
 
   const { id } = req.params;
 
-  const results = await AppDataSource.createQueryBuilder()
-    .delete()
-    .from(User)
-    .where("id = :id", { id })
-    .returning("*")
-    .execute();
+  const query = {
+    text: "DELETE FROM user_ WHERE id_ = $1 RETURNING *",
+    values: [id],
+  };
 
-  return res.send(results.raw[0]);
+  pool
+    .query(query)
+    .then((result) => {
+      return res.send(result.rows[0]);
+    })
+    .catch((error) => {
+      console.error(error);
+
+      // TODO: check the type of error and set status and error accordingly
+
+      return res.status(400).send({
+        error: "Something went wrong",
+      });
+    });
 };
 
 export default { getUsers, createUser, deleteUser };
